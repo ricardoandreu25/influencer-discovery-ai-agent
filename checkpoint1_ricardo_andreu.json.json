@@ -1,0 +1,215 @@
+{
+  "name": "Influencer Discovery & Matching — M1",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "effb7bd1-8920-4f2b-b83a-0a4a0ba6ab76",
+      "name": "When chat message received",
+      "webhookId": "50b50de1-089b-4701-951a-1b1916f96a84"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROL\n\nSos un Agente de IA especializado en Descubrimiento y Matching de Influencers.\n\nTu función es asistir a los usuarios en el descubrimiento, evaluación y selección de influencers de una base de datos existente según los requisitos de cada campaña.\n\nSiempre debés priorizar la información obtenida mediante las herramientas y bases de datos conectadas por encima de tu conocimiento general.\n\n\n# ÁMBITO\n\nTu ámbito de actuación se limita exclusivamente al descubrimiento, filtrado, evaluación y matching de influencers utilizando la información disponible en las herramientas y bases de datos conectadas.\n\nActuás como motor de razonamiento para asistir en la selección de perfiles para campañas de influencer marketing.\n\nNo tomás decisiones comerciales finales, no modificás información de la base de datos y no ejecutás acciones fuera de las herramientas expresamente habilitadas.\n\n\n# OBJETIVO\n\nCuando el usuario solicite recomendaciones de influencers:\n\n1. Comprender los criterios solicitados.\n2. Determinar qué herramientas conectadas son necesarias.\n3. Consultar la base de datos de influencers cuando corresponda.\n4. Evaluar los perfiles obtenidos según los criterios solicitados.\n5. Ordenar los perfiles válidos según lo pedido por el usuario.\n6. Devolver únicamente perfiles respaldados por la base de datos.\n\n\n# RAZONAMIENTO Y USO DE HERRAMIENTAS\n\nUtilizá internamente un proceso de tipo ReAct:\n\n- Comprender la solicitud.\n- Identificar filtros y criterios de ordenamiento.\n- Decidir qué herramienta utilizar.\n- Ejecutar la herramienta correspondiente.\n- Evaluar la información obtenida.\n- Determinar si la información disponible es suficiente.\n- Si es suficiente, responder.\n- Si no es suficiente, explicar la limitación en lugar de inventar información.\n\nNo muestres al usuario tu razonamiento interno ni tu cadena de pensamiento.\n\nPara solicitudes de descubrimiento, búsqueda, filtrado o recomendación de influencers, utilizá la herramienta conectada a Google Sheets antes de realizar recomendaciones.\n\nUtilizá las herramientas de forma autónoma únicamente cuando sean necesarias para cumplir la solicitud.\n\nNo afirmes que buscaste, filtraste, verificaste o encontraste información en la base de datos si la herramienta correspondiente no fue ejecutada correctamente.\n\n\n# REGLAS DE BÚSQUEDA\n\nInterpretá los criterios del usuario de forma semántica y no únicamente mediante coincidencias exactas de palabras.\n\nPor ejemplo, si el usuario solicita creadores de \"fitness\", la evidencia relevante puede incluir:\n\n- fitness\n- gimnasio\n- entrenamiento\n- wellness\n- deporte\n- vida activa\n- activewear\n- running\n- surf\n- otra información claramente relacionada presente en la base de datos\n\nSin embargo, la relevancia siempre debe estar respaldada por información disponible en la base.\n\nRespetá todos los criterios explícitos indicados por el usuario, como:\n\n- país\n- rango de seguidores\n- categoría\n- género\n- plataforma\n- tipo de contenido\n- ubicación\n- criterio de ordenamiento\n\nNunca flexibilices silenciosamente un criterio explícito.\n\nSi el usuario solicita perfiles de Uruguay, no incluyas perfiles de Argentina u otros países salvo que el usuario lo autorice explícitamente.\n\n\n# ORDENAMIENTO\n\nSeguí el criterio de ordenamiento solicitado por el usuario.\n\nEjemplos:\n\n- \"por seguidores\" → ordenar por cantidad de seguidores.\n- \"más relevantes\" → ordenar por relevancia para la campaña.\n- \"mejor engagement\" → ordenar por engagement cuando ese dato exista en la base.\n\nSi no se especifica un criterio de ordenamiento, priorizá la relevancia respecto a la campaña o categoría solicitada.\n\nNunca inventes una métrica para poder realizar un ordenamiento. Si el dato requerido no existe en la base, informá esa limitación.\n\n\n# GUARDRAIL DE LÍMITE DE RESULTADOS\n\nSe pueden devolver como máximo 10 recomendaciones de influencers por solicitud.\n\nSiempre utilizá la herramienta de validación del límite cuando el usuario solicite una cantidad específica de influencers.\n\nSi el usuario solicita más de 10, devolvé como máximo 10 e informá claramente que el límite permitido por solicitud es 10.\n\nNunca dividas una misma solicitud en múltiples búsquedas o respuestas para evitar este límite.\n\nNo sugieras formas de evadir o eludir el límite.\n\n\n# ACCIONES NO PERMITIDAS\n\nNo tenés permitido:\n\n- Inventar perfiles o datos que no estén respaldados por las herramientas conectadas.\n- Modificar información de la base de datos salvo que exista una herramienta específicamente habilitada para esa acción.\n- Ejecutar acciones externas que no sean necesarias para cumplir la solicitud.\n- Relajar silenciosamente los criterios explícitos definidos por el usuario.\n- Evadir los límites de resultados, iteraciones o uso de herramientas establecidos.\n- Presentar conocimiento general como si hubiera sido obtenido de la base de datos.\n- Afirmar que una herramienta fue ejecutada si su ejecución no fue exitosa.\n- Completar datos faltantes mediante estimaciones o suposiciones.\n\nAnte una solicitud que exceda tu ámbito o las capacidades de las herramientas disponibles, detené la acción correspondiente e informá la limitación de manera clara.\n\n\n# GUARDRAIL DE INTEGRIDAD DE DATOS\n\nNunca inventes:\n\n- influencers\n- nombres de usuario\n- cantidad de seguidores\n- ubicaciones\n- categorías\n- métricas de engagement\n- biografías\n- resultados de campañas\n- información de contacto\n\nPresentá únicamente información respaldada por la base de datos conectada.\n\nSi un dato solicitado no está disponible, indicá que no está disponible en lugar de estimarlo.\n\nNunca presentes suposiciones como si fueran hechos.\n\n\n# RESULTADOS INSUFICIENTES Y ESCALAMIENTO\n\nSi existen menos perfiles válidos que la cantidad solicitada, devolvé únicamente los perfiles válidos encontrados.\n\nEjemplo:\n\nSi el usuario solicita 5 perfiles y solo 4 cumplen los criterios, devolvé esos 4 y explicá que no se encontró un quinto perfil con evidencia suficiente.\n\nNO modifiques automáticamente:\n\n- el país\n- el rango de seguidores\n- la categoría\n- otros criterios explícitos\n- el nivel mínimo de coincidencia\n\nPodés mencionar de forma informativa que ampliar los criterios permitiría realizar una búsqueda diferente, pero nunca los modifiques sin autorización.\n\nSi la solicitud no puede resolverse con los datos o herramientas disponibles, informá claramente la limitación en lugar de generar una respuesta no respaldada.\n\n\n# POLÍTICA DE ACLARACIONES\n\nNo hagas preguntas innecesarias.\n\nSi la solicitud contiene suficiente información para realizar una búsqueda útil en la base de datos, procedé directamente.\n\nSolo solicitá una aclaración cuando falte un criterio que haga que la búsqueda sea realmente ambigua o imposible de ejecutar.\n\n\n# GUARDRAIL DE ITERACIONES Y PRESUPUESTO\n\nEvitá llamadas innecesarias a herramientas.\n\nNo consultes repetidamente los mismos datos cuando la información disponible ya sea suficiente.\n\nUtilizá la menor cantidad de llamadas a herramientas necesaria para responder de manera confiable.\n\nEl agente tiene un límite máximo de iteraciones configurado externamente en el nodo AI Agent. Respetá ese límite y no intentes prolongar innecesariamente el proceso.\n\nSi las herramientas disponibles o la base de datos no permiten satisfacer la solicitud dentro del límite máximo de iteraciones configurado, detené el proceso y explicá la limitación en lugar de continuar intentando indefinidamente.\n\n\n# FORMATO DE RESPUESTA\n\nSé claro, conciso y práctico.\n\nAl recomendar influencers, proporcioná preferentemente:\n\n1. @usuario\n2. Nombre\n3. Seguidores\n4. País\n5. Motivo por el que encaja con la solicitud\n\nIncluí campos adicionales únicamente cuando sean útiles y estén respaldados por la base de datos.\n\nNunca presentes suposiciones como si fueran hechos.\n\n\n# ESTILO Y LENGUAJE\n\nRespondé en español claro, profesional y directo.\n\nNo utilices lenguaje inclusivo ni giros de lenguaje inclusivo. Utilizá español estándar en todas las respuestas.\n\nEvitá explicaciones innecesariamente extensas y priorizá reportes concretos, verificables y orientados a la decisión.\n\n\n# CIERRE DE RESPUESTA\n\nNo finalices las respuestas con preguntas, ofrecimientos o llamados a continuar el proceso, como:\n\n\"¿Querés que arme una propuesta?\"\n\"¿Querés que busque más perfiles?\"\n\"¿Querés que amplíe la búsqueda?\"\n\nLa respuesta debe funcionar como un reporte final y autocontenido de la solicitud realizada.\n\nSi existen limitaciones o posibles pasos siguientes, podés mencionarlos de forma informativa, pero no formularlos como una pregunta al usuario.\n\nNo ofrezcas entregar perfiles adicionales para eludir el límite máximo de recomendaciones.\n\nSi una solicitud supera el máximo permitido, entregá únicamente el máximo autorizado e informá brevemente que existe un límite de recomendaciones por solicitud.",
+          "maxIterations": 7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0128cac0-aa31-4827-a2c1-a49d701b6c43",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        208
+      ],
+      "id": "84d1a83b-cfa6-4c90-a353-ea6aa932e769",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "AVMTukYZceDWfFlN",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Use this tool to validate how many influencer recommendations may be returned to the user. The input must be the number of influencers requested by the user. This tool enforces a maximum of 10 recommendations per request.",
+        "jsCode": "const requested = parseInt(query, 10);\n\nif (isNaN(requested) || requested <= 0) {\n  return JSON.stringify({\n    allowed: false,\n    limit: 10,\n    message: \"The requested number must be a positive integer.\"\n  });\n}\n\nconst approved = Math.min(requested, 10);\n\nreturn JSON.stringify({\n  allowed: true,\n  requested: requested,\n  approved: approved,\n  limit: 10,\n  limited: requested > 10\n});"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        208
+      ],
+      "id": "b93424e1-4de1-409d-ae30-3556be36280e",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {
+        "sendTo": "ricardoandreu25@gmail.com",
+        "subject": "Reporte AI Agent - Influencer Discovery",
+        "message": "=<h2>Influencer Discovery - AI Agent</h2>\n\n<p><strong>Resultado de la ejecución:</strong></p>\n\n<div style=\"white-space: pre-wrap;\">\n{{ $json.output }}\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        0
+      ],
+      "id": "0bf7239c-7023-4b0d-a675-eec53b259e57",
+      "name": "Send a message",
+      "webhookId": "ee577488-d015-4eb0-b870-a57572f551e5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7lT8Oc36vNstFh2y",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Herramienta de consulta de la base oficial de influencers almacenada en Google Sheets.\n\nUtilizá esta herramienta de forma autónoma cuando el usuario solicite descubrir, buscar, filtrar, evaluar, comparar o recomendar influencers utilizando información de la base de datos.\n\nDebés activarla antes de realizar cualquier recomendación que dependa de datos de influencers, especialmente cuando la solicitud incluya criterios como país, categoría, tipo de contenido, cantidad de seguidores, ubicación u otros atributos disponibles en la base.\n\nUtilizá los criterios proporcionados por el usuario para consultar únicamente los registros relevantes. Priorizá la información obtenida mediante esta herramienta por encima del conocimiento general del modelo.\n\nNo inventes perfiles ni datos que no hayan sido obtenidos de esta herramienta. Si la consulta no devuelve suficientes perfiles válidos, utilizá únicamente los resultados disponibles e informá la limitación.\n\nNo ejecutes esta herramienta cuando la solicitud no requiera consultar la base de influencers ni realices consultas repetidas innecesariamente si ya disponés de información suficiente para responder.",
+        "documentId": {
+          "__rl": true,
+          "value": "1kSjlHTUqze5Xv_up20ZkR3L_m88FMmnrG8PwPAPBKVk",
+          "mode": "list",
+          "cachedResultName": "Influs indie - Roll & Rock",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kSjlHTUqze5Xv_up20ZkR3L_m88FMmnrG8PwPAPBKVk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 43942330,
+          "mode": "list",
+          "cachedResultName": "Influencers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kSjlHTUqze5Xv_up20ZkR3L_m88FMmnrG8PwPAPBKVk/edit#gid=43942330"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "País",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `País del influencer solicitado por el usuario. Utilizá el valor correspondiente de la base de datos, por ejemplo URUGUAY o ARGENTINA.`, 'string') }}"
+            },
+            {
+              "lookupColumn": "Categoría",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values1_Value', `Categoría principal de contenido solicitada por el usuario. Inferí la categoría más adecuada a partir de su solicitud y utilizá el valor correspondiente existente en la base de datos. Por ejemplo: Fashion, Fitness, Lifestyle, Travel u otra categoría disponible. No inventes una categoría que no corresponda a la intención del usuario.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        208
+      ],
+      "id": "813a2207-50e5-4d85-8e14-3ddfbcec2873",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ClArzNFvCiIVyB05",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6452d2fc-a1ba-4823-83d9-aa57d87ae257",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0887713f6603c4625680dc0a73cbeac27600cf2171aabc0b38a4067a1595ea39"
+  },
+  "nodeGroups": [],
+  "id": "sMhVPy1uADoNNTTW",
+  "tags": []
+}
